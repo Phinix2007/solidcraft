@@ -80,6 +80,7 @@ mod surface_clamp_tests;
 mod surface_errors_tests;
 #[cfg(test)]
 mod timeline_marks_tests;
+pub mod woodwork;
 #[cfg(test)]
 mod status_tests {
     #[test]
@@ -290,6 +291,7 @@ pub struct Services {
 
 pub struct SolveApp {
     pub session: Session,
+    pub woodwork: woodwork::State,
     pub ui: UiState,
     pub cam: Camera,
     /// A view change in progress (axis view, Home, Fit); any mouse navigation cancels it.
@@ -440,6 +442,7 @@ impl SolveApp {
             render_workspace,
             tool: None,
             dialog: None,
+            woodwork: woodwork::State::default(),
             params: None,
             design_properties: None,
             material_card_review: None,
@@ -713,6 +716,13 @@ impl SolveApp {
     /// Start a command the way a toolbar click does: interactive tools and dialogs for commands
     /// that have them, otherwise run it with defaults.
     pub fn start(&mut self, id: &str) {
+        if ["woodwork.cabinet", "woodwork.bom", "woodwork.panelize", "woodwork.miter", "woodwork.trim"].contains(&id) {
+            if !self.file_load.busy() && self.file_picker.is_none() {
+                self.woodwork.open = true;
+                self.woodwork.advanced = !["woodwork.cabinet", "woodwork.bom"].contains(&id);
+            }
+            return;
+        }
         // A file is loading: the design waits for it.
         if self.file_load.busy() || self.file_picker.is_some() {
             return;
@@ -1345,6 +1355,7 @@ impl SolveApp {
         let mut report_input = None;
         issue_report::CadInput::block(self, ui, &mut report_input);
         self.cad_ui(ui, &mut report_input);
+        woodwork::show(self, ui.ctx());
         drop(report_input);
         // After everything else, on every page (the start page too, which returns early from
         // `cad_ui`): the window's edges resize it (#1381).

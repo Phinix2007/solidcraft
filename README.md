@@ -11,6 +11,10 @@
   model through the built-in MCP server.
 </p>
 
+## Möbelbau-Erweiterung in diesem Fork
+
+Dieser Fork enthält **SolidCraft Holz** direkt in SolidCraft: Möbelkorpusse, Platten, CSV-Stücklisten, schräge Grundkörper, Gehrungen und freie Trimmungen. Einstieg: **Werkzeuge → Erweiterungen**. [Anleitung, Grenzen und Build](docs/woodwork-local.md). Die folgenden Downloadlinks führen zu den offiziellen Builds; für die Erweiterung diesen Fork aus dem Quellcode bauen.
+
 <div align="center">
 
 [![Download for Windows][badge-windows]][windows-msi]
