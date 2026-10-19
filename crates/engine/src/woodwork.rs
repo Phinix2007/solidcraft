@@ -278,10 +278,18 @@ impl Cabinet {
         Ok(self.csv_for(&self.panels()?))
     }
     pub fn csv_for(&self, panels: &[Panel]) -> String {
+        self.csv_for_language(panels, "de")
+    }
+    pub fn csv_for_language(&self, panels: &[Panel], language: &str) -> String {
+        let english = language != "de";
         let mut s="\u{feff}Position;Bauteil;Anzahl;Material;Fertiglaenge_mm;Fertigbreite_mm;Staerke_mm;Rohlaenge_mm;Rohbreite_mm;Maserung;Kanten_lang;Kanten_kurz;Kantenband_mm;Volumen_m3;Masse_kg;Konturpruefung\r\n".to_string();
+        if english {
+            s = "\u{feff}Position;Part;Quantity;Material;FinishedLength_mm;FinishedWidth_mm;Thickness_mm;BlankLength_mm;BlankWidth_mm;Grain;LongEdges;ShortEdges;EdgeBand_mm;Volume_m3;Mass_kg;ContourCheck\r\n".to_string();
+        }
         for (i, p) in panels.iter().enumerate() {
             let blank = p.blank(self);
-            let mat = if p.back { format!("{} (Rückwand)", self.material) } else { self.material.clone() };
+            let mat =
+                if p.back { format!("{} ({})", self.material, if english { "back panel" } else { "Rückwand" }) } else { self.material.clone() };
             let fields = vec![
                 (i + 1).to_string(),
                 safe_cell(&p.name),
@@ -292,14 +300,29 @@ impl Cabinet {
                 num(p.thickness),
                 num(blank[0]),
                 num(blank[1]),
-                "entlang Fertiglänge".into(),
+                if english { "along finished length".into() } else { "entlang Fertiglänge".into() },
                 p.edges_length.to_string(),
                 p.edges_width.to_string(),
                 num(if p.back { 0. } else { self.band }),
                 format!("{:.6}", p.volume()).replace('.', ","),
                 num(p.volume() * self.density * 1000.),
-                if p.shaped { "Ja – Kontur/Gehrung prüfen".into() } else { "Nein".into() },
+                if p.shaped {
+                    if english { "Yes – check contour/miter".into() } else { "Ja – Kontur/Gehrung prüfen".into() }
+                } else if english {
+                    "No".into()
+                } else {
+                    "Nein".into()
+                },
             ];
+            let fields = if english {
+                fields
+                    .into_iter()
+                    .enumerate()
+                    .map(|(i, v)| if [4, 5, 6, 7, 8, 12, 13, 14].contains(&i) { v.replace(',', ".") } else { v })
+                    .collect::<Vec<_>>()
+            } else {
+                fields
+            };
             s.push_str(&fields.iter().map(|x| format!("\"{}\"", x.replace('"', "\"\""))).collect::<Vec<_>>().join(";"));
             s.push_str("\r\n");
         }
@@ -316,6 +339,21 @@ fn safe_cell(s: &str) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[test]
+    fn english_csv_preserves_user_names_and_uses_decimal_points() {
+        let c = Cabinet { material: "Material, custom".into(), ..Cabinet::default() };
+        let mut panels = c.panels().unwrap();
+        panels[0].name = "=custom, part".into();
+        let en = c.csv_for_language(&panels, "en");
+        let de = c.csv_for(&panels);
+        assert!(en.starts_with("\u{feff}Position;Part;Quantity;Material;FinishedLength_mm"));
+        assert!(en.contains("along finished length"));
+        assert!(en.contains("\"18.000\""));
+        assert!(en.contains("'=custom, part"));
+        assert!(en.contains("Material, custom"));
+        assert!(de.contains("Fertiglaenge_mm"));
+        assert!(de.contains("\"18,000\""));
+    }
     #[test]
     fn dividers_and_shelves_have_disjoint_interiors() {
         let c = Cabinet { dividers: 2, shelves: 4, doors: true, ..Default::default() };

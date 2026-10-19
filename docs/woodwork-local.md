@@ -1,5 +1,7 @@
 # SolidCraft Holz — native Möbelbau-Erweiterung
 
+Deutsch · [English](woodwork.md)
+
 Dieser SolidCraft-Fork enthält das Möbelbaumodul direkt in derselben Anwendung. Es startet kein Zusatzprogramm und benötigt keinen externen Generator. Einstieg: **Werkzeuge → Erweiterungen → Möbelkorpus** oder Befehlssuche **Möbelkorpus**. **Möbel-Stückliste** öffnet denselben Dialog.
 
 ## Ablauf
@@ -60,3 +62,7 @@ cargo build --release -p solidcraft -p solidcraft-cli
 ```
 
 Die normalen Downloadlinks im Haupt-README führen zu offiziellen SolidCraft-Versionen. Diese enthalten die Möbelbau-Erweiterung erst nach einer eigenen Übernahme; zum Testen dieses Forks den Branch mit der Erweiterung bauen. Maßfelder mit Enter oder durch Verlassen des Feldes bestätigen; beispielsweise lässt sich 19 mm ohne vorzeitiges Begrenzen auf 3 mm eingeben.
+
+## Sprache
+
+Die Oberfläche folgt der SolidCraft-Spracheinstellung. Englisch bietet auch englische CSV-Spalten und Dezimalpunkte; Deutsch behält deutsche Spalten und Dezimalkommas. Vorhandene Bauteil- und Materialnamen bleiben erhalten. Für Skripte: `woodwork.bom` akzeptiert `language: "en"`; ohne Angabe bleibt das bisherige deutsche CSV-Format erhalten.

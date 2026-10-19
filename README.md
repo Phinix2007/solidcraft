@@ -11,9 +11,11 @@
   model through the built-in MCP server.
 </p>
 
-## Möbelbau-Erweiterung in diesem Fork
+## Furniture tools in this fork / Möbelbau-Erweiterung
 
-Dieser Fork enthält **SolidCraft Holz** direkt in SolidCraft: Möbelkorpusse, Platten, CSV-Stücklisten, schräge Grundkörper, Gehrungen und freie Trimmungen. Einstieg: **Werkzeuge → Erweiterungen**. [Anleitung, Grenzen und Build](docs/woodwork-local.md). Die folgenden Downloadlinks führen zu den offiziellen Builds; für die Erweiterung diesen Fork aus dem Quellcode bauen.
+**SolidCraft Holz** runs inside SolidCraft: furniture cabinets, panels, CSV cut lists, sloped bodies, miters and free trimming. Open **Utilities → Add-ins**. The tools follow the application's English or German language setting. [English guide, limits and build](docs/woodwork.md) · [Deutsche Anleitung](docs/woodwork-local.md).
+
+The following download links lead to official upstream builds. Build this fork from source to use the furniture extension. / Die folgenden Downloadlinks führen zu offiziellen Builds; für die Möbelbau-Erweiterung diesen Fork aus dem Quellcode bauen.
 
 <div align="center">
 

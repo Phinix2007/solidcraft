@@ -34,7 +34,7 @@ pub static COMMANDS: &[CommandSpec] = &[
         .icon("list")
         .at("UTILITIES", "ADD-INS")
         .noundo()
-        .params("instance?: number (default most recent); path?: CSV destination → current panel sizes and CSV"),
+        .params("instance?: number (default most recent); language?: en/de (CSV, default de); path?: CSV destination → current panel sizes and CSV"),
 ];
 pub(super) fn error(s: impl Into<String>) -> EngineError {
     EngineError::Other(s.into())
@@ -182,7 +182,7 @@ fn bom(s: &mut Session, p: &Value) -> Result<Value> {
             panel.thickness = d.z;
         }
     }
-    let csv = c.csv_for(&panels);
+    let csv = c.csv_for_language(&panels, p.get("language").and_then(Value::as_str).unwrap_or("de"));
     if let Some(path) = p.get("path").and_then(Value::as_str) {
         solidcraft_io::vfs::write(path, csv.as_bytes()).map_err(|e| error(e.to_string()))?;
     }

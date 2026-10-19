@@ -227,7 +227,7 @@ pub(super) fn bom(s: &mut Session, p: &Value, record: Value, id: u64) -> Result<
             shaped: true,
         });
     }
-    let csv = c.csv_for(&panels);
+    let csv = c.csv_for_language(&panels, p.get("language").and_then(Value::as_str).unwrap_or("de"));
     if let Some(path) = p.get("path").and_then(Value::as_str) {
         solidcraft_io::vfs::write(path, csv.as_bytes()).map_err(|e| error(e.to_string()))?;
     }
