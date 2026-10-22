@@ -183,6 +183,7 @@ pub mod save_job;
 pub mod scenario;
 pub mod select_other;
 pub mod selection;
+mod selection_measure;
 pub mod shell;
 #[cfg(test)]
 mod shell_face_sketch_ui_tests;
@@ -442,6 +443,7 @@ pub struct SolveApp {
     /// When Esc was last pressed (input time): a second press soon after finishes the sketch.
     pub last_escape: Option<f64>,
     pub status: Option<(String, f64, bool)>,
+    selection_measure: selection_measure::Cache,
     pub quit_requested: bool,
     /// Autosave into the recovery folder (the desktop app turns it on).
     pub autosave: Option<recovery_ui::Autosaves>,
@@ -577,6 +579,7 @@ impl SolveApp {
             esc_handled: false,
             last_escape: None,
             status: None,
+            selection_measure: Default::default(),
             quit_requested: false,
             autosave: None,
             recoverable: Vec::new(),
