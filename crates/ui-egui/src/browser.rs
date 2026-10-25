@@ -1788,9 +1788,9 @@ fn entries(app: &SolveApp, comp: u64, folder: &str) -> Vec<Entry> {
                     key: f.id.to_string(),
                     row_key: format!("s:{}", f.id),
                     label: if lost {
-                        format!("{}  (attachment lost)", f.name)
+                        crate::i18n::format("browser.sketch_attachment_lost", &[("name", &crate::i18n::tr_name(&f.name))])
                     } else if active {
-                        format!("{}  (editing)", f.name)
+                        crate::i18n::format("browser.sketch_editing", &[("name", &crate::i18n::tr_name(&f.name))])
                     } else {
                         f.name.clone()
                     },
