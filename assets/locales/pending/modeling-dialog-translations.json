@@ -1,0 +1,30 @@
+{
+  "en": {
+    "Equal Distance": "Equal Distance",
+    "Two Distances": "Two Distances",
+    "Distance and Angle": "Distance and Angle",
+    "click profiles in the view": "click profiles in the view",
+    "click edges or faces": "click edges or faces",
+    "click a plane or planar face": "click a plane or planar face",
+    "click an axis or sketch line": "click an axis or sketch line",
+    "click sketch lines": "click sketch lines",
+    "click sketch curves": "click sketch curves",
+    "click sketch points": "click sketch points",
+    "click bodies": "click bodies",
+    "click faces": "click faces"
+  },
+  "de": {
+    "Equal Distance": "Gleicher Abstand",
+    "Two Distances": "Zwei Abstände",
+    "Distance and Angle": "Abstand und Winkel",
+    "click profiles in the view": "Profile in der Ansicht auswählen",
+    "click edges or faces": "Kanten oder Flächen auswählen",
+    "click a plane or planar face": "Ebene oder ebene Fläche auswählen",
+    "click an axis or sketch line": "Achse oder Skizzenlinie auswählen",
+    "click sketch lines": "Skizzenlinien auswählen",
+    "click sketch curves": "Skizzenkurven auswählen",
+    "click sketch points": "Skizzenpunkte auswählen",
+    "click bodies": "Körper auswählen",
+    "click faces": "Flächen auswählen"
+  }
+}
