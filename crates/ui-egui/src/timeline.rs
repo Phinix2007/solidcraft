@@ -792,7 +792,8 @@ fn folder_tile(app: &mut SolveApp, ui: &mut egui::Ui, p: &egui::Painter, x: f32,
 fn timeline_contents(app: &mut SolveApp, ui: &mut egui::Ui, floating: bool) {
     let t = Tokens::get();
     let accent = crate::theme::TabAccent::for_tab(&t, &app.ui.tab);
-    let r = ui.max_rect();
+    let mut r = ui.max_rect();
+    r.max.x = crate::selection_measure::show(app, ui, r);
     let p = ui.painter().clone();
 
     let n = app.session.doc.features.len();
