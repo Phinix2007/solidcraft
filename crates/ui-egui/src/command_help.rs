@@ -51,6 +51,11 @@ pub const DOCUMENTED: &[&str] = &[
     "timeline.compute_all",
     "timeline.delete",
     "timeline.play",
+    "woodwork.bom",
+    "woodwork.cabinet",
+    "woodwork.miter",
+    "woodwork.panelize",
+    "woodwork.trim",
 ];
 
 /// The help for `command` in the current language, when it has any.

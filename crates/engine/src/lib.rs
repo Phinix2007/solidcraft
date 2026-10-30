@@ -36,6 +36,7 @@ pub mod snap;
 pub mod status_items;
 pub mod timing;
 pub mod view;
+pub mod woodwork;
 
 use std::sync::Arc;
 
