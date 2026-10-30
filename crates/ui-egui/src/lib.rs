@@ -225,6 +225,7 @@ pub mod scenario;
 pub(crate) mod scene_palette;
 pub mod select_other;
 pub mod selection;
+mod selection_measure;
 pub mod settings_profiles;
 #[cfg(test)]
 mod settings_profiles_tests;
@@ -577,6 +578,7 @@ pub struct SolveApp {
     /// When Esc was last pressed (input time): a second press soon after finishes the sketch.
     pub last_escape: Option<f64>,
     pub status: Option<(String, f64, bool)>,
+    selection_measure: selection_measure::Cache,
     /// The status message offers Undo (a click on it undoes the last step), as after an automatic stand-up.
     pub status_undo: bool,
     pub quit_requested: bool,
@@ -774,6 +776,7 @@ impl SolveApp {
             esc_handled: false,
             last_escape: None,
             status: None,
+            selection_measure: Default::default(),
             status_undo: false,
             quit_requested: false,
             autosave: None,
