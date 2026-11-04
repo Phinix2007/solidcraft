@@ -112,6 +112,7 @@ mod surface_boundary;
 mod surface_match;
 mod view_dxf;
 mod view_navigation;
+mod woodwork;
 
 use serde::Serialize;
 use serde_json::Value;
@@ -344,6 +345,7 @@ pub fn command_specs() -> Vec<&'static CommandSpec> {
     v.extend(view_dxf::COMMANDS.iter());
     v.extend(settings::COMMANDS.iter());
     v.extend(diagnostics::COMMANDS.iter());
+    v.extend(woodwork::COMMANDS.iter());
     v.extend(render::COMMANDS.iter());
     v.extend(render_ui::COMMANDS.iter());
     v

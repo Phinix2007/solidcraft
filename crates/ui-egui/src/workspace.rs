@@ -214,6 +214,12 @@ pub const SECTIONS: &[Section] = &[
         promoted: 2,
         ids: &["material.assign", "appearance.assign", "material.properties.validate", "library.inspect", "library.export", "library.apply"],
     },
+    Section {
+        tab: "MANAGE",
+        panel: "ADD-INS",
+        promoted: 1,
+        ids: &["woodwork.cabinet", "woodwork.panelize", "woodwork.miter", "woodwork.trim", "woodwork.bom"],
+    },
     Section { tab: "MANAGE", panel: "RULES", promoted: 3, ids: &["sheet.manage_rules", "plastic.manage_rules", "plastic.assign_rule"] },
     Section {
         tab: "MANAGE",
@@ -499,6 +505,9 @@ pub fn panels(tab: &str) -> Vec<&'static str> {
 }
 
 pub fn destination(c: &CommandSpec) -> Option<(&'static str, &'static str)> {
+    if c.id.starts_with("woodwork.") && !c.panel.is_empty() {
+        return Some(("MANAGE", "ADD-INS"));
+    }
     if c.id.starts_with("render.") || c.tab.starts_with("RENDER") || c.id == "view.shots_strip" {
         return None;
     }

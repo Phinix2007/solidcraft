@@ -130,6 +130,18 @@ pub fn enabled(app: &SolveApp, id: &str) -> bool {
     !app.preferences.disabled_plugins.contains(id)
 }
 
+/// The compiled furniture add-on is listed even without an external package folder.
+fn add_bundled_furniture(plugins: &mut Vec<Plugin>) {
+    if !plugins.iter().any(|plugin| plugin.id == "furniture") {
+        plugins.push(Plugin {
+            id: "furniture".into(),
+            name: crate::i18n::tr("cmd.woodwork.cabinet").to_string(),
+            version: env!("CARGO_PKG_VERSION").into(),
+            description: crate::i18n::tr("woodwork.addon_description").to_string(),
+        });
+    }
+}
+
 fn matches_query(plugin: &Plugin, query: &str) -> bool {
     let query = query.trim();
     if query.is_empty() {
@@ -177,7 +189,8 @@ pub fn page(app: &mut SolveApp, ui: &mut egui::Ui) {
         }
     }
     ui.add_space(8.0);
-    let (plugins, skipped) = scan(&dir);
+    let (mut plugins, skipped) = scan(&dir);
+    add_bundled_furniture(&mut plugins);
     let query = app.prefs_window.plugin_query.clone();
     if plugins.is_empty() && !searching {
         ui.label(crate::i18n::tr("ui.plugins_empty"));
@@ -312,5 +325,24 @@ mod tests {
         assert!(matches_query(&plugin, "commercial"));
         assert!(matches_query(&plugin, "0.1"));
         assert!(!matches_query(&plugin, "bearing"));
+    }
+    #[test]
+    fn furniture_addon_respects_its_enable_switch() {
+        let mut app = crate::SolveApp::new(solidcraft_engine::Session::default(), crate::Services::default());
+        app.preferences.disabled_plugins.insert("furniture".into());
+        app.start("woodwork.cabinet");
+        assert!(!app.woodwork.open);
+        app.preferences.disabled_plugins.remove("furniture");
+        app.start("woodwork.cabinet");
+        assert!(app.woodwork.open);
+    }
+    #[test]
+    fn bundled_furniture_is_available_without_a_manifest_and_is_not_duplicated() {
+        let mut plugins = Vec::new();
+        add_bundled_furniture(&mut plugins);
+        assert_eq!(plugins.len(), 1);
+        assert_eq!(plugins[0].id, "furniture");
+        add_bundled_furniture(&mut plugins);
+        assert_eq!(plugins.len(), 1);
     }
 }

@@ -300,6 +300,7 @@ pub mod view_pick;
 pub mod viewport;
 mod viewport_layout;
 mod viewport_status_fixture;
+pub mod woodwork;
 pub mod workspace;
 
 use std::sync::mpsc::Receiver;
@@ -458,6 +459,7 @@ pub struct SolveApp {
     pub embedded: bool,
     pub session: Session,
     pub ui: UiState,
+    pub woodwork: woodwork::State,
     pub(crate) shell: shell::State,
     pub cam: Camera,
     /// A view change in progress (axis view, Home, Fit); any mouse navigation cancels it.
@@ -712,6 +714,7 @@ impl SolveApp {
             viewport_status_fixture: Default::default(),
             session,
             ui: UiState::default(),
+            woodwork: woodwork::State::default(),
             shell: Default::default(),
             cam: Camera::default(),
             cam_anim: None,
@@ -1507,6 +1510,17 @@ impl SolveApp {
         }
         if render_workspace::start_interactive(self, id) {
             return;
+        }
+        if id.starts_with("woodwork.") {
+            if !plugins::enabled(self, "furniture") {
+                self.set_status(crate::i18n::tr("Furniture add-on is disabled").to_string(), true);
+                return;
+            }
+            if ["woodwork.cabinet", "woodwork.bom", "woodwork.panelize", "woodwork.miter", "woodwork.trim"].contains(&id) {
+                self.woodwork.open = true;
+                self.woodwork.advanced = !["woodwork.cabinet", "woodwork.bom"].contains(&id);
+                return;
+            }
         }
         workspace::select_command_tab(self, id);
         if id == "occurrence.move" {
@@ -2604,6 +2618,11 @@ impl SolveApp {
         let mut report_input = None;
         issue_report::CadInput::block(self, ui, &mut report_input);
         self.cad_ui(ui, &mut report_input);
+        if plugins::enabled(self, "furniture") {
+            woodwork::show(self, ui.ctx());
+        } else {
+            self.woodwork.open = false;
+        }
         drop(report_input);
         // After everything else, on every page (the start page too, which returns early from
         // `cad_ui`): the window's edges resize it (#1381).
