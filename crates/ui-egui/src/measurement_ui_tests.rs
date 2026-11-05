@@ -279,3 +279,103 @@ fn measure_imported_stl_edges_and_vertices_from_viewport_clicks() {
         h.app.session.selection.clear();
     }
 }
+
+#[test]
+fn passive_edge_measurement_follows_selection_geometry_and_units_without_a_dialog() {
+    let mut h = Harness::new();
+    h.app.home.open = false;
+    h.app.run("solid.box", json!({"length":30,"width":40,"height":50,"body_name":"Box"})).unwrap();
+    let mesh = h.app.session.world_state().body("Box").unwrap().mesh();
+    let edge = mesh.edges.iter().position(|p| (p.first().unwrap().dist(*p.last().unwrap()) - 30.0).abs() < 1e-8).unwrap();
+    h.app.session.selection = vec![Sel::Edge { body: "Box".into(), index: edge, point: *mesh.edges[edge].first().unwrap() }];
+    assert!(painted_text(&mut h).iter().any(|s| s.contains("Length: 30.00 mm")));
+    assert!(h.app.dialog.is_none());
+    h.app.session.selection.clear();
+    assert!(!painted_text(&mut h).iter().any(|s| s.contains("Length: 30.00 mm")));
+    h.app.run("sketch.create", json!({"plane":"XY"})).unwrap();
+    let made = h.app.run("sketch.circle.center", json!({"center":[0,0],"radius":5})).unwrap();
+    h.app.session.selection = vec![Sel::SketchCurve { id: made["curves"][0].as_str().unwrap().into() }];
+    let texts = painted_text(&mut h);
+    assert!(texts.iter().any(|s| s.contains("Length: 31.42 mm") && s.contains("Radius: 5.00 mm") && s.contains("Diameter: 10.00 mm")), "{texts:?}");
+    h.app.run("document.units", json!({"units":"cm"})).unwrap();
+    assert!(painted_text(&mut h).iter().any(|s| s.contains("Radius: 0.50 cm")));
+}
+
+#[test]
+fn passive_measurement_shows_face_area_and_adds_parallel_edge_lengths() {
+    let mut h = Harness::new();
+    h.app.home.open = false;
+    h.app.run("solid.box", json!({"length":30,"width":40,"height":50,"body_name":"Box"})).unwrap();
+    let mesh = h.app.session.world_state().body("Box").unwrap().mesh();
+    let top = mesh
+        .triangles
+        .iter()
+        .zip(&mesh.tri_face)
+        .find(|(tri, _)| mesh.tri(tri).unwrap().iter().all(|v| (v.z - 50.).abs() < 1e-8))
+        .map(|(_, f)| *f as usize)
+        .unwrap();
+    h.app.session.selection = vec![Sel::Face { body: "Box".into(), index: top, point: [15., 20., 50.].into() }];
+    assert!(painted_text(&mut h).iter().any(|s| s.contains("Area: 1200.00 mm²")));
+    h.app.run("document.units", json!({"units":"cm"})).unwrap();
+    assert!(painted_text(&mut h).iter().any(|s| s.contains("Area: 12.00 cm²")));
+    h.app.run("document.units", json!({"units":"mm"})).unwrap();
+    let edges: Vec<_> = mesh
+        .edges
+        .iter()
+        .enumerate()
+        .filter(|(_, p)| (p.first().unwrap().dist(*p.last().unwrap()) - 30.).abs() < 1e-8)
+        .take(2)
+        .map(|(i, p)| Sel::Edge { body: "Box".into(), index: i, point: *p.first().unwrap() })
+        .collect();
+    assert_eq!(edges.len(), 2);
+    h.app.session.selection = edges;
+    assert!(painted_text(&mut h).iter().any(|s| s.contains("Full Length: 60.00 mm (2)")));
+    h.app.session.selection.pop();
+    assert!(painted_text(&mut h).iter().any(|s| s.contains("Length: 30.00 mm")));
+    h.app.session.selection.push(Sel::Face { body: "Box".into(), index: top, point: [15., 20., 50.].into() });
+    assert!(!painted_text(&mut h).iter().any(|s| s.contains("Full Length:")));
+    assert!(h.app.dialog.is_none());
+}
+
+#[test]
+fn passive_measurement_shows_arc_radius_and_sums_sketch_lines() {
+    let mut h = Harness::new();
+    h.app.home.open = false;
+    h.app.run("sketch.create", json!({"plane":"XY"})).unwrap();
+    let arc = h.app.run("sketch.arc.center_point", json!({"center":[0,0],"start":[10,0],"end":[0,10]})).unwrap();
+    h.app.session.selection = vec![Sel::SketchCurve { id: arc["curves"][0].as_str().unwrap().into() }];
+    assert!(painted_text(&mut h).iter().any(|s| s.contains("Radius: 10.00 mm") && s.contains("Length: 15.71 mm")));
+    let mut lines = Vec::new();
+    for points in [json!([[20, 0], [50, 0]]), json!([[20, 10], [60, 10]])] {
+        let line = h.app.run("sketch.line", json!({"points":points,"connect":false})).unwrap();
+        lines.push(Sel::SketchCurve { id: line["curves"][0].as_str().unwrap().into() });
+    }
+    h.app.session.selection = lines;
+    assert!(painted_text(&mut h).iter().any(|s| s.contains("Full Length: 70.00 mm (2)")));
+}
+
+#[test]
+fn native_selection_measurement_ignores_legacy_plugin_disable_flag() {
+    let mut h = Harness::new();
+    h.app.home.open = false;
+    h.app.run("solid.box", json!({"length":30,"width":40,"height":50,"body_name":"Box"})).unwrap();
+    h.app.session.selection = vec![Sel::Edge { body: "Box".into(), index: 0, point: [0., 0., 0.].into() }];
+    h.app.preferences.disabled_plugins.insert("selection-measure".into());
+    assert!(painted_text(&mut h).iter().any(|s| s.contains("Length:")));
+    assert!(h.app.dialog.is_none());
+}
+
+#[test]
+fn selection_measurements_can_be_hidden_without_disabling_inspect() {
+    let mut h = Harness::new();
+    h.app.home.open = false;
+    h.app.run("solid.box", json!({"length":30,"width":40,"height":50,"body_name":"Box"})).unwrap();
+    h.app.session.selection = vec![Sel::Edge { body: "Box".into(), index: 0, point: [0., 0., 0.].into() }];
+    assert!(painted_text(&mut h).iter().any(|s| s.contains("Length:")));
+    h.call("ui.prefs", json!({"selection_measurements":false}));
+    assert!(!painted_text(&mut h).iter().any(|s| s.contains("Length:")));
+    let measured = h.app.session.measure_items(&h.app.session.selection);
+    assert_eq!(measured["items"][0]["type"], "edge");
+    h.call("ui.prefs", json!({"selection_measurements":true}));
+    assert!(painted_text(&mut h).iter().any(|s| s.contains("Length:")));
+}

@@ -1,0 +1,26 @@
+{
+  "en": {
+    "prefs.selection_measurements": "Show selection measurements"
+  },
+  "de": {
+    "prefs.selection_measurements": "Auswahlmaße anzeigen"
+  },
+  "ja": {
+    "prefs.selection_measurements": "選択した要素の測定値を表示"
+  },
+  "zh": {
+    "prefs.selection_measurements": "显示所选对象的测量值"
+  },
+  "ko": {
+    "prefs.selection_measurements": "선택 측정값 표시"
+  },
+  "ar": {
+    "prefs.selection_measurements": "إظهار قياسات التحديد"
+  },
+  "he": {
+    "prefs.selection_measurements": "הצג מדידות של הבחירה"
+  },
+  "vi": {
+    "prefs.selection_measurements": "Hiện số đo lựa chọn"
+  }
+}
